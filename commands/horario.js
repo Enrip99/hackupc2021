@@ -17,8 +17,25 @@ module.exports = {
 
 				else{
 					var i
+					var hora
 					for (i = 1; i<args.length; i+=2){
-						message.channel.send(args[i])
+						if (args[i].length == 1 && args[i].match(/[lmxjvsd]/)){
+							message.channel.send(args[i])
+
+							hora = parseInt(args[i+1],10)
+							if (!isNaN(hora) && hora < 22 && hora > 7){
+								console.log("a")
+							}
+
+							else{
+								message.channel.send(args[i+1] +" no es una hora válida")
+							}
+
+						}
+
+						else{
+							message.channel.send(args[i] + " no es un día válido. Solo acepto **l**unes, **m**artes, (**x**)miercoles, **j**ueves, **v**iernes, **s**ábado y **d**omingo.")
+						}
 					}
 				}
 			}
