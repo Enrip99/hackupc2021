@@ -1,5 +1,5 @@
 const config = require('../data/config.json');
-const config = require('../data/calendar.json');
+var calendar = require('../data/calendar.json');
 
 module.exports = {
 	name: 'horario',
@@ -9,7 +9,6 @@ module.exports = {
 			//help command, TO DO
 			message.channel.send("content goes here")
 		}
-
 		else{
 			if (args[0] == "add"){
 				if (args.length == 1 || args.length%2 == 0) {
@@ -27,25 +26,36 @@ module.exports = {
 							if (!isNaN(hora) && hora < 22 && hora > 7){
 								//main code here, only if valid hour and day
 								hora -=8
-								switch(dia){
-									case('l') dia = 0
+								switch(dia) {
+									case 'l':
+									dia = 0
 									break
-									case('m') dia = 1
+									case 'm':
+									dia = 1
 									break
-									case('x') dia = 2
+									case 'x':
+									dia = 2
 									break
-									case('j') dia = 3
+									case 'j':
+									dia = 3
 									break
-									case('v') dia = 4
+									case 'v':
+									dia = 4
 									break
-									case('s') dia = 5
+									case 's':
+									dia = 5
 									break
-									case('d') dia = 6
+									case 'd':
+									dia = 6
 									break
 								}
-
-
-
+								var found = false
+								for(x in calendar[dia][hora]){
+									if (calendar[dia][hora][x] == message.author.id) found = true
+								}
+								if (!found){
+									calendar[dia][hora].push(message.author.id)
+								}
 							}
 							else{
 								message.channel.send(args[i+1] +" no es una hora válida")
@@ -59,3 +69,4 @@ module.exports = {
 			}
 		}
 	}
+}
