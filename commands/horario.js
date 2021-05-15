@@ -1,5 +1,6 @@
 const config = require('../data/config.json');
 var calendar = require('../data/calendar.json');
+const fs = require('fs');
 
 module.exports = {
 	name: 'horario',
@@ -7,7 +8,7 @@ module.exports = {
 	execute(message, args) {
 		if (!args.length){
 			//help command, TO DO
-			message.channel.send("content goes here")
+			message.channel.send("help goes here")
 		}
 		else{
 			if (args[0] == "add"){
@@ -50,12 +51,12 @@ module.exports = {
 									break
 								}
 								var found = false
-								for(x in calendar[dia][hora]){
-									if (calendar[dia][hora][x] == message.author.id) found = true
+								for(x in calendar.hor[dia][hora]){
+									if (calendar.hor[dia][hora][x] == message.author.id) found = true
 								}
 								if (!found){
-									calendar[dia][hora].push(message.author.id)
-								}
+									calendar.hor[dia][hora].push(message.author.id)
+									}
 							}
 							else{
 								message.channel.send(args[i+1] +" no es una hora válida")
@@ -64,6 +65,51 @@ module.exports = {
 						else{
 							message.channel.send(args[i] + " no es un día válido. Solo acepto **l**unes, **m**artes, (**x**)miercoles, **j**ueves, **v**iernes, **s**ábado y **d**omingo.")
 						}
+					}
+					fs.writeFile("./data/calendar.json", JSON.stringify(calendar), function(err) {if (err) console.log(err)})
+				}
+			}
+			else if (args[0] == "check"){
+				if (args.length == 2){
+					var dia = args[1]
+					if (dia.length == 1 && dia.match(/[lmxjvsd]/)){
+						switch(dia) {
+							case 'l':
+							dia = 0
+							break
+							case 'm':
+							dia = 1
+							break
+							case 'x':
+							dia = 2
+							break
+							case 'j':
+							dia = 3
+							break
+							case 'v':
+							dia = 4
+							break
+							case 's':
+							dia = 5
+							break
+							case 'd':
+							dia = 6
+							break
+						}
+						dia = calendar.hor[dia]
+						var msgToSend = ""
+						var hora
+
+						for (hora = 0; hora < dia.length; ++hora){
+							if (dia[hora].length > 0){
+								msgToSend = msgToSend.concat("A las ",hora,": ", dia[hora].length, " personas\n")
+							}
+							else if (dia[hora].length == 1){
+								msgToSend = msgToSend.concat("A las ",hora,": ", dia[hora].length, " persona\n")
+							}
+						}
+						if (msgToSend != "")message.channel.send(msgToSend)
+						else message.channel.send("Este día no hay nadie")
 					}
 				}
 			}

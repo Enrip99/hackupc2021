@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^12.5.1",
+    "node-localstorage": "^2.1.6",
     "node-webcam": "^0.8.0"
   }
 }
