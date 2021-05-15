@@ -16,7 +16,7 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-  if (message.author.bot) return;
+  if (message.author.bot || message.guild.id != config.serverid) return;
 
   const args = message.content.trim().split(/ +/);
   const command = args.shift().toLowerCase();
