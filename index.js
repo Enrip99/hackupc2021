@@ -16,6 +16,7 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
+
   if (message.author.bot || message.guild.id != config.serverid) return;
 
   const args = message.content.trim().split(/ +/);
@@ -24,10 +25,11 @@ client.on('message', message => {
   if (!client.commands.has(command)) return;
 
   try {
-    client.commands.get(command).execute(message, args);
+    client.commands.get(command).execute(message, args, client);
   } catch (error) {
     console.error(error);
   }
+
 
 });
 

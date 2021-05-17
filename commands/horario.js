@@ -1,13 +1,16 @@
 const config = require('../data/config.json');
 var calendar = require('../data/calendar.json');
 const fs = require('fs');
+//const Discord = require('discord.js');
+//const client = new Discord.Client();
+
 
 module.exports = {
 	name: 'horario',
 	description: 'guarda y genera el horario de diversos usuarios',
-	execute(message, args) {
+	execute(message, args, client) {
 		if (!args.length){
-			message.channel.send("Para ver un listado de las horas a las que habrá gente en el despacho, escribe `horario check` seguido de un día de la semana. Por ejemplo, para ver la lista de los martes, escribe `horario check m`.\nPara añadir los días en que puedes estar por el despacho, escribe `despacho add` seguido de una lista de los días y horas en los que estás. Por ejemplo, para añadir que estarás el lunes a las 18:00, las 19:00 y el viernes a las 9:00, escribe `despacho add l 18 l 19 v 9`.\nPara quitar de la lista días en los que ya no puedes venir, escribe `despacho remove` seguido de una lista de los días y horas en los que estás. Por ejemplo, para quitar los miércoles a las 10:00 y los jueves a las 12, escribe `despacho remove x 10 j 12`.\nLas horas soportadas son de 8 a 21. Como día de la semana solo acepto las iniciales: º**l**unes, **m**artes, (**x**)miercoles, **j**ueves, **v**iernes, **s**ábado y **d**omingo.")
+			message.channel.send("Para ver un listado de las horas a las que habrá gente en el despacho, escribe `horario check` seguido de un día de la semana. Por ejemplo, para ver la lista de los martes, escribe `horario check m`.\nPara añadir los días en que puedes estar por el despacho, escribe `despacho add` seguido de una lista de los días y horas en los que estás. Por ejemplo, para añadir que estarás el lunes a las 18:00, las 19:00 y el viernes a las 9:00, escribe `despacho add l 18 l 19 v 9`.\nPara quitar de la lista días en los que ya no puedes venir, escribe `despacho remove` seguido de una lista de los días y horas en los que estás. Por ejemplo, para quitar los miércoles a las 10:00 y los jueves a las 12, escribe `despacho remove x 10 j 12`.\nLas horas soportadas son de 8 a 21. Como día de la semana solo acepto las iniciales: **l**unes, **m**artes, (**x**)miercoles, **j**ueves, **v**iernes, **s**ábado y **d**omingo.")
 		}
 		else{
 			if (args[0] == "add"){
@@ -109,6 +112,58 @@ module.exports = {
 						}
 						if (msgToSend != "")message.channel.send(msgToSend)
 						else message.channel.send("Este día no hay nadie")
+					}
+					else {
+						message.channel.send("`" + dia + "` no es un día válido. Solo acepto **l**unes, **m**artes, (**x**)miercoles, **j**ueves, **v**iernes, **s**ábado y **d**omingo.")
+					}
+				}
+				else if (args.length == 3){
+					var dia = args[1]
+					if (dia.length == 1 && dia.match(/[lmxjvsd]/)){
+						switch(dia) {
+							case 'l':
+							dia = 0
+							break
+							case 'm':
+							dia = 1
+							break
+							case 'x':
+							dia = 2
+							break
+							case 'j':
+							dia = 3
+							break
+							case 'v':
+							dia = 4
+							break
+							case 's':
+							dia = 5
+							break
+							case 'd':
+							dia = 6
+							break
+						}
+						hora = parseInt(args[2],10)
+						if (!isNaN(hora) && hora < 22 && hora > 7){
+							//main code here, only if valid hour and day
+							hora -=8
+							if(calendar.hor[dia][hora].length == 0){
+								message.channel.send("Ese día a esa hora no hay nadie")
+							}
+							else{
+								var count = 0
+								var msgToSend = "Las siguientes personas estarán a esa hora:"
+								for (var i = 0; i < calendar.hor[dia][hora].length; ++i){
+									client.users.fetch(String(calendar.hor[dia][hora][i])).then(usr =>{
+										console.log("i am here")
+										msgToSend = msgToSend.concat("\n",usr.username)
+										++count
+										if (count == calendar.hor[dia][hora].length) message.channel.send(msgToSend)
+									})
+								}
+							}
+						}
+						else message.channel.send("Hora no válida")
 					}
 					else {
 						message.channel.send("`" + dia + "` no es un día válido. Solo acepto **l**unes, **m**artes, (**x**)miercoles, **j**ueves, **v**iernes, **s**ábado y **d**omingo.")
