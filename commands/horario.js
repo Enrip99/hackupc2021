@@ -105,6 +105,53 @@ function add_delete(args, message, addition){
 	}
 }
 
+function check_day(dia, message){
+	var msgToSend = ""
+	for (var i = 0; i < calendar.hor[dia].length; ++i){
+		if (calendar.hor[dia][i].length == 1){
+			msgToSend = msgToSend.concat("A las ",i+8,": ", calendar.hor[dia][i].length, " persona\n")
+		}
+		else if (calendar.hor[dia][i].length > 1){
+			msgToSend = msgToSend.concat("A las ",i+8,": ", calendar.hor[dia][i].length, " personas\n")
+		}
+	}
+	if (!msgToSend.length) message.channel.send("Este día no hay nadie")
+	else message.channel.send(msgToSend)
+}
+
+function check_dia_hora(dia, hora, message, client){
+	var count = 0
+	var i = 0
+	var msgToSend = ""
+	for (i = 0; i < calendar.hor[dia][hora].length; ++i){
+		client.users.fetch(String(calendar.hor[dia][hora][i])).then(usr =>{
+			msgToSend = msgToSend.concat("\n",usr.username)
+			++count
+			if (count == calendar.hor[dia][hora].length) message.channel.send(msgToSend)
+		})
+	}
+	if (i == 0) message.channel.send("Ese día a esa hora no hay nadie")
+}
+
+function check(args, message, client){
+	switch(args.length){
+		case 2:
+			var dia = validate_day(args[1])
+			if (dia >= 0) check_day(dia, message)
+			else message.channel.send(args[1] + " no es un día válido.")
+			break
+		case 3:
+			var dia = validate_day(args[1])
+			var hora = validate_hour(args[2])
+			if (dia >= 0 && hora >= 0) check_dia_hora(dia, hora, message, client)
+			else message.channel.send(args[1] + " " + args[2] + " no son un día y hora válidos")
+			break
+		default:
+			message.channel.send("Por favor, envía un único día, y opcionalmente una hora")
+			break
+	}
+}
+
 module.exports = {
 	name: 'horario',
 	description: 'guarda y genera el horario de diversos usuarios',
@@ -123,6 +170,7 @@ module.exports = {
 					break
 
 				case "check":
+					check(args, message, client)
 					break
 
 				case "wipe":
