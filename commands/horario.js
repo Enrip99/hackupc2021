@@ -41,14 +41,20 @@ function validate_hour(hour){
 }
 
 function check_pairs_and_odd(args, message){
-	if (args.length != 1 || args.length%2 == 1){
+	if (args.length != 1 && args.length%2 == 1){
 		return true
 	}
 	else{
 		message.channel.send("Comando inválido - Recuerda enviar los días y horas a pares")
+		return false
 	}
 }
 
+function save_calendar(){
+	fs.writeFile("./data/calendar.json", JSON.stringify(calendar), function(err) {
+		if (err) console.log(err)
+	})
+}
 
 module.exports = {
 	name: 'horario',
@@ -91,9 +97,7 @@ module.exports = {
 						}
 						msgToSend = msgToSend.concat("\n\n",msgToSend_exis,"\n\n",msgToSend_fails)
 						message.channel.send(msgToSend)
-						fs.writeFile("./data/calendar.json", JSON.stringify(calendar), function(err) {
-							if (err) console.log(err)
-						})
+						save_calendar(calendar)
 					}
 					break
 
@@ -101,6 +105,24 @@ module.exports = {
 					break
 
 				case "check":
+					break
+
+				case "wipe":
+					if (args.length == 2 && args[1] == "--confirm"){
+						if (message.author.id == config.owner1 || message.author.id == config.owner2){
+							for (var i = 0; i < calendar.hor.length; ++i){
+								for (var j = 0; j < calendar.hor[i].length; ++j){
+									calendar.hor[i][j].splice(0,calendar.hor[i][j].length)
+								}
+							}
+							save_calendar()
+							message.channel.send("Base de datos borrada con éxito")
+						}
+						else message.channel.send("Esta acción solo la pueden hacer los propietarios del bot")
+					}
+					else{
+						message.channel.send("Borra toda la base de datos. Usa `horario wipe --confirm`. **Esta acció no se puede deshacer**")
+					}
 					break
 
 				default:
