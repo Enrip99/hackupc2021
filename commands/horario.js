@@ -56,6 +56,55 @@ function save_calendar(){
 	})
 }
 
+function add_delete(args, message, addition){
+	if (check_pairs_and_odd(args, message)){
+		var msgToSend_fails = ""
+		var msgToSend_exis = ""
+		var msgToSend = ""
+		for (var i = 1; i<args.length; i+=2){
+			var dia = validate_day(args[i])
+			var hora = validate_hour(args[i+1])
+			if (hora >= 0 && dia >= 0){
+				var found = false
+				for (var j = 0; j < calendar.hor[dia][hora] && !found; ++j){
+					if (calendar.hor[dia][hora][j] == message.author.id){
+						found = true
+						if (!addition){
+							calendar.hor[dia][hora].splice(j,1)
+							if(!msgToSend.length) msgToSend = "Se han borrado del horario los siguientes días y horas:"
+							msgToSend = msgToSend.concat("\n **-** ",args[i]," ",args[i+1])
+						}
+					}
+				}
+				if (addition){
+					if (!found){
+						calendar.hor[dia][hora].push(message.author.id)
+						if(!msgToSend.length) msgToSend = "Se han añadido al horario los siguientes días y horas:"
+						msgToSend = msgToSend.concat("\n **-** ",args[i]," ",args[i+1])
+					}
+					else{
+						if (!msgToSend_exis.length) msgToSend_exis = "Ya tienes asignados los siguientes días y horas:"
+						msgToSend_exis = msgToSend_exis.concat("\n **-** ",args[i]," ",args[i+1])
+					}
+				}
+				if (!addition){
+					if (!found){
+						if (!msgToSend_exis.length) msgToSend_exis = "No tenías asignados los siguientes días y horas:"
+						msgToSend_exis = msgToSend_exis.concat("\n **-** ",args[i]," ",args[i+1])
+					}
+				}
+			}
+			else {
+				if (!msgToSend_fails.length) msgToSend_fails = "Los siguientes días y horas no son válidos:"
+				msgToSend_fails = msgToSend_fails.concat("\n **-** ",args[i]," ",args[i+1])
+			}
+		}
+		msgToSend = msgToSend.concat("\n\n",msgToSend_exis,"\n\n",msgToSend_fails)
+		message.channel.send(msgToSend)
+		save_calendar(calendar)
+	}
+}
+
 module.exports = {
 	name: 'horario',
 	description: 'guarda y genera el horario de diversos usuarios',
@@ -66,42 +115,11 @@ module.exports = {
 		else{
 			switch (args[0]){
 				case "add":
-					if (check_pairs_and_odd(args, message)){
-						var msgToSend_fails = ""
-						var msgToSend_exis = ""
-						var msgToSend = ""
-						for (var i = 1; i<args.length; i+=2){
-							var dia = validate_day(args[i])
-							var hora = validate_hour(args[i+1])
-							if (hora >= 0 && dia >= 0){
-								var found = false
-								for (var j = 0; j < calendar.hor[dia][hora] && !found; ++j){
-									if (calendar.hor[dia][hora][j] == message.author.id){
-										found = true
-									}
-								}
-								if (!found){
-									calendar.hor[dia][hora].push(message.author.id)
-									if(!msgToSend.length) msgToSend = "Se han añadido al horario los siguientes días y horas:"
-									msgToSend = msgToSend.concat("\n",args[i]," ",args[i+1])
-								}
-								else{
-									if (!msgToSend_exis.length) msgToSend_exis = "Ya tienes asignados los siguientes días y horas:"
-									msgToSend_exis = msgToSend_exis.concat("\n",args[i]," ",args[i+1])
-								}
-							}
-							else {
-								if (!msgToSend_fails.length) msgToSend_fails = "Los siguientes días y horas no son válidos:"
-								msgToSend_fails = msgToSend_fails.concat("\n",args[i]," ",args[i+1])
-							}
-						}
-						msgToSend = msgToSend.concat("\n\n",msgToSend_exis,"\n\n",msgToSend_fails)
-						message.channel.send(msgToSend)
-						save_calendar(calendar)
-					}
+					add_delete(args, message, true)
 					break
 
 				case "remove":
+					add_delete(args, message, false)
 					break
 
 				case "check":
