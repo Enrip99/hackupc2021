@@ -66,7 +66,7 @@ function add_delete(args, message, addition){
 			var hora = validate_hour(args[i+1])
 			if (hora >= 0 && dia >= 0){
 				var found = false
-				for (var j = 0; j < calendar.hor[dia][hora] && !found; ++j){
+				for (var j = 0; j < calendar.hor[dia][hora].length && !found; ++j){
 					if (calendar.hor[dia][hora][j] == message.author.id){
 						found = true
 						if (!addition){
